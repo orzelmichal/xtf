@@ -15,5 +15,8 @@ COMMON_CFLAGS += -march=armv8-a
 COMMON_CFLAGS += -DCONFIG_ARM_64
 COMMON_AFLAGS += -DCONFIG_ARM_64
 
+# Prevent the compiler from using FP/ASIMD registers
+COMMON_CFLAGS += -mgeneral-regs-only
+
 # Include arm common makefile
 include $(ROOT)/build/arm-common/arch-common.mk

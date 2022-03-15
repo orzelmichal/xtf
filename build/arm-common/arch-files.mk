@@ -11,3 +11,4 @@ obj-perbits += $(ROOT)/common/xenbus.o
 obj-perbits += $(ROOT)/common/weak-defaults.o
 
 obj-perenv += $(ROOT)/arch/arm/setup.o
+obj-perenv += $(ROOT)/arch/arm/traps.o
