@@ -15,6 +15,8 @@ struct init_data
 
 const char environment_description[] = ENVIRONMENT_DESCRIPTION;
 
+shared_info_t __page_aligned_bss shared_info;
+
 #ifdef CONFIG_MMU
 static void setup_pv_console(void)
 {

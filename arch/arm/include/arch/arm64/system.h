@@ -7,6 +7,21 @@
 #define local_irq_disable() asm volatile ( "msr daifset, #2\n" ::: "memory" )
 #define local_irq_enable()  asm volatile ( "msr daifclr, #2\n" ::: "memory" )
 
+#define local_irq_save(flags)    \
+({                               \
+    asm volatile (               \
+    "mrs %0, daif\n"             \
+    "msr daifset, #2\n"          \
+    : "=r" (flags) :: "memory"); \
+})
+
+#define local_irq_restore(flags) \
+({                               \
+    asm volatile (               \
+    "msr daif, %0\n"             \
+    :: "r" (flags) : "memory");  \
+})
+
 #endif /* XTF_ARM64_SYSTEM_H */
 
 /*
