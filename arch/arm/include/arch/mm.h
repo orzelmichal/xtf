@@ -91,7 +91,7 @@ extern paddr_t phys_offset;
  * VA = PA - PO
  */
 #define phys(x)         ((paddr_t)(x) + phys_offset)
-#define virt(x)         (void *)(((x) - phys_offset)
+#define virt(x)         (void *)((x) - phys_offset)
 #define pfn_to_phys(x)  ((paddr_t)(x) << PAGE_SHIFT)
 #define phys_to_pfn(x)  ((unsigned long)((x) >> PAGE_SHIFT))
 #define mfn_to_virt(x)  (virt(pfn_to_phys(x)))

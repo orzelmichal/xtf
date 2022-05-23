@@ -52,6 +52,23 @@ static bool is_initdomain(void)
 
     return false;
 }
+
+static void map_shared_info(void)
+{
+    int ret;
+    struct xen_add_to_physmap xatp =
+    {
+        .domid = DOMID_SELF,
+        .space = XENMAPSPACE_shared_info,
+        .idx = 0,
+        .gfn = virt_to_pfn(&shared_info),
+    };
+
+    ret = hypercall_memory_op(XENMEM_add_to_physmap, &xatp);
+
+    if (ret)
+        panic("Failed to map shared_info. ret=%d\n", ret);
+}
 #endif
 
 static void setup_console(void)
@@ -70,6 +87,7 @@ void arch_setup(void)
     setup_console();
 #ifdef CONFIG_MMU
     setup_mm(boot_data.phys_offset);
+    map_shared_info();
 #endif
 }
 
