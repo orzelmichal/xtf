@@ -48,6 +48,10 @@ void __noreturn panic(const char *fmt, ...) __printf(1, 2);
 
 #define ROUNDUP(x, a) (((x) + (a) - 1) & ~((a) - 1))
 
+/* Indirect stringification. */
+#define _STRINGIFY(x...) #x
+#define STRINGIFY(x...) _STRINGIFY(x)
+
 void heapsort(void *base, size_t nmemb, size_t size,
               int (*compar)(const void *, const void *),
               void (*swap)(void *, void *));

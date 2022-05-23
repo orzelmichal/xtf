@@ -22,6 +22,19 @@
     :: "r" (flags) : "memory");  \
 })
 
+/* TODO: Access to system registers. */
+#define write_sysreg(v, name)                                \
+({                                                           \
+    panic("Macro write_sysreg not implemented yet.\n");      \
+})
+
+#define read_sysreg(name)                                    \
+({                                                           \
+    uint32_t r_ = 0;                                         \
+    panic("Macro read_sysreg not implemented yet.\n");       \
+    r_;                                                      \
+})
+
 #endif /* XTF_ARM32_SYSTEM_H */
 
 /*

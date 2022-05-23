@@ -22,6 +22,20 @@
     :: "r" (flags) : "memory");  \
 })
 
+/* Access to system registers. */
+#define write_sysreg(v, name)                                \
+({                                                           \
+    uint64_t r_ = (v);                                       \
+    asm volatile("msr "STRINGIFY(name)", %0" :: "r" (r_));   \
+})
+
+#define read_sysreg(name)                                    \
+({                                                           \
+    uint64_t r_;                                             \
+    asm volatile("mrs  %0, "STRINGIFY(name) : "=r" (r_));    \
+    r_;                                                      \
+})
+
 #endif /* XTF_ARM64_SYSTEM_H */
 
 /*
