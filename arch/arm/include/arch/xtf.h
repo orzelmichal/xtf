@@ -4,6 +4,8 @@
 #ifndef XTF_ARM_XTF_H
 #define XTF_ARM_XTF_H
 
+extern bool isinitdomain;
+
 #endif /* XTF_ARM_XTF_H */
 
 /*

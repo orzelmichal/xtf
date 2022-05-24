@@ -15,6 +15,9 @@ struct init_data
 
 const char environment_description[] = ENVIRONMENT_DESCRIPTION;
 
+/* Are we initial domain (dom0)? */
+bool isinitdomain = false;
+
 shared_info_t __page_aligned_bss shared_info;
 
 #ifdef CONFIG_MMU
@@ -36,23 +39,6 @@ static void setup_pv_console(void)
     init_pv_console(cons_ring, cons_evtchn);
 }
 
-static bool is_initdomain(void)
-{
-    xen_feature_info_t fi;
-    int ret;
-
-    fi.submap_idx = 0;
-    ret = hypercall_xen_version(XENVER_get_features, &fi);
-
-    if (ret)
-        panic("Failed to obtain Xen features. ret=%d\n", ret);
-
-    if (fi.submap & (1 << XENFEAT_dom0))
-        return true;
-
-    return false;
-}
-
 static void map_shared_info(void)
 {
     int ret;
@@ -71,22 +57,41 @@ static void map_shared_info(void)
 }
 #endif
 
+static bool is_initdomain(void)
+{
+    xen_feature_info_t fi;
+    int ret;
+
+    fi.submap_idx = 0;
+    ret = hypercall_xen_version(XENVER_get_features, &fi);
+
+    if (ret)
+        panic("Failed to obtain Xen features. ret=%d\n", ret);
+
+    if (fi.submap & (1 << XENFEAT_dom0))
+        return true;
+
+    return false;
+}
+
 static void setup_console(void)
 {
     /* Use Xen console to print messages */
     register_console_callback(hypercall_console_write);
-#ifdef CONFIG_MMU
-    /* Use PV console when running as a guest */
-    if (!is_initdomain())
-        setup_pv_console();
-#endif
 }
 
 void arch_setup(void)
 {
     setup_console();
+    isinitdomain = is_initdomain();
+
 #ifdef CONFIG_MMU
     setup_mm(boot_data.phys_offset);
+
+    /* Use PV console when running as a guest */
+    if (!isinitdomain)
+        setup_pv_console();
+
     map_shared_info();
 #endif
 }
