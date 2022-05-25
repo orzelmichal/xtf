@@ -7,3 +7,6 @@ include $(ROOT)/build/arm-common/arch-files.mk
 obj-perenv += $(ROOT)/arch/arm/arm64/head.o
 obj-perenv += $(ROOT)/arch/arm/arm64/cache.o
 obj-perenv += $(ROOT)/arch/arm/arm64/hypercall.o
+ifeq ($(CONFIG_GICV3), y)
+obj-perenv += $(ROOT)/arch/arm/gicv3.o
+endif

@@ -21,5 +21,25 @@ COMMON_AFLAGS += -DCONFIG_ARM_64
 # Prevent the compiler from using FP/ASIMD registers
 COMMON_CFLAGS += -mgeneral-regs-only
 
+# Specify whether to use ARM GICv3 (enabled by default):
+# CONFIG_GICV3=<y/n>
+CONFIG_GICV3 ?= y
+
+# The following two options must be populated with proper addresses when using
+# XTF as dom0. When using XTF as domU, these addresses do not matter as GIC
+# driver will use Xen vGIC v3 mappings.
+
+# Specify GIC distributor address.
+CONFIG_GICV3_DIST_ADDRESS  ?= 0x0
+
+# Specify GIC redistributor address.
+CONFIG_GICV3_RDIST_ADDRESS ?= 0x0
+
+ifeq ($(CONFIG_GICV3), y)
+COMMON_CFLAGS += -DCONFIG_GICV3
+COMMON_CFLAGS += -DCONFIG_GICV3_DIST_ADDRESS=$(CONFIG_GICV3_DIST_ADDRESS)
+COMMON_CFLAGS += -DCONFIG_GICV3_RDIST_ADDRESS=$(CONFIG_GICV3_RDIST_ADDRESS)
+endif
+
 # Include arm common makefile
 include $(ROOT)/build/arm-common/arch-common.mk

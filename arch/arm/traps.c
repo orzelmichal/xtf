@@ -6,6 +6,7 @@
 #include <xtf/hypercall.h>
 #include <arch/regs.h>
 #include <arch/system.h>
+#include <arch/gic.h>
 
 #ifdef CONFIG_ARM_64
 static void show_registers64(struct cpu_regs *regs)
@@ -86,7 +87,11 @@ void do_trap_sync(struct cpu_regs *regs)
  */
 void do_trap_irq(struct cpu_regs *regs)
 {
+#ifdef CONFIG_GICV3
+    gicv3_handler();
+#else
     UNIMPLEMENTED();
+#endif
 }
 
 /*

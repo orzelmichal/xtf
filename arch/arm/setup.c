@@ -5,6 +5,8 @@
  */
 #include <xtf/lib.h>
 #include <xtf/hypercall.h>
+#include <arch/system.h>
+#include <arch/gic.h>
 
 /* Structure to store boot arguments. */
 struct init_data
@@ -93,6 +95,14 @@ void arch_setup(void)
         setup_pv_console();
 
     map_shared_info();
+#endif
+
+#ifdef CONFIG_GICV3
+    /* GIC initialization */
+    gicv3_init();
+
+    /* Enable interrupts */
+    local_irq_enable();
 #endif
 }
 

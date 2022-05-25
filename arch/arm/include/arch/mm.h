@@ -52,6 +52,9 @@
 
 /* Fixmap slots */
 #define FIXMAP_PV_CONSOLE       0
+#define FIXMAP_GICD             1
+#define FIXMAP_GICR             2
+#define FIXMAP_GICS             3
 
 /* Descriptors */
 #define DESCR_BAD               0x0
