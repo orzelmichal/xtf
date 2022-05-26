@@ -87,11 +87,10 @@ void do_trap_sync(struct cpu_regs *regs)
  */
 void do_trap_irq(struct cpu_regs *regs)
 {
-#ifdef CONFIG_GICV3
-    gicv3_handler();
-#else
-    UNIMPLEMENTED();
-#endif
+    if (gic_available())
+        gic_handler();
+    else
+        UNIMPLEMENTED();
 }
 
 /*

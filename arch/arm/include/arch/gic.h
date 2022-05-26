@@ -114,14 +114,76 @@
 #define ICC_SRE_DFB         (1 << 1)
 #define ICC_SRE_SRE         (1 << 0)
 
-void gicv3_enable_int(unsigned int intid);
-void gicv3_disable_int(unsigned int intid);
-void gicv3_set_int_priority(unsigned int intid, unsigned int priority);
-void gicv3_set_int_type(unsigned int initd, unsigned int type);
-void gicv3_eoi(unsigned int intid);
-unsigned int gicv3_get_active_irq(void);
-void gicv3_init(void);
-void gicv3_handler(void);
+struct gic_controller {
+    void (*enable_int)(unsigned int);
+    void (*disable_int)(unsigned int);
+    void (*set_int_priority)(unsigned int,unsigned int);
+    void (*set_int_type)(unsigned int,unsigned int);
+    void (*eoi)(unsigned int);
+    unsigned int (*get_active_irq)(void);
+    void (*handler)(void);
+    void (*init)(void);
+};
+
+extern struct gic_controller *gic;
+
+static inline bool gic_available(void)
+{
+    return (gic != NULL);
+}
+
+static inline void gic_enable_int(unsigned int intid)
+{
+    gic->enable_int(intid);
+}
+
+static inline void gic_disable_int(unsigned int intid)
+{
+    gic->disable_int(intid);
+}
+
+static inline void gic_set_int_priority(unsigned int intid,
+                                        unsigned int priority)
+{
+    gic->set_int_priority(intid, priority);
+}
+
+static inline void gic_set_int_type(unsigned int intid, unsigned int type)
+{
+    gic->set_int_type(intid, type);
+}
+
+static inline void gic_eoi(unsigned int intid)
+{
+    gic->eoi(intid);
+}
+
+static inline unsigned int gic_get_active_irq(void)
+{
+    return gic->get_active_irq();
+}
+
+static inline void gic_handler(void)
+{
+    gic->handler();
+}
+
+static inline void gic_init(void)
+{
+    gic->init();
+}
+
+#ifdef CONFIG_GICV3
+void gicv3_register(void);
+#endif
+
+static inline void gic_register(void)
+{
+#ifdef CONFIG_GICV3
+    gicv3_register();
+#endif
+};
+
 
 #endif /* XTF_ARM_GIC_H */
 

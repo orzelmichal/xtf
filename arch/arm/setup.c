@@ -20,6 +20,9 @@ const char environment_description[] = ENVIRONMENT_DESCRIPTION;
 /* Are we initial domain (dom0)? */
 bool isinitdomain = false;
 
+/* GIC controller. */
+struct gic_controller *gic;
+
 shared_info_t __page_aligned_bss shared_info;
 
 #ifdef CONFIG_MMU
@@ -97,13 +100,14 @@ void arch_setup(void)
     map_shared_info();
 #endif
 
-#ifdef CONFIG_GICV3
-    /* GIC initialization */
-    gicv3_init();
+    gic_register();
 
-    /* Enable interrupts */
-    local_irq_enable();
-#endif
+    /* Initialize GIC and enable interrupts. */
+    if (gic_available())
+    {
+        gic_init();
+        local_irq_enable();
+    }
 }
 
 /*

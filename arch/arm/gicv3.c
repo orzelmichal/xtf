@@ -24,7 +24,7 @@ static void gicv3_wait_rwp(void *base)
     while (io_readl(base + GICD_CTLR) & GICD_CTLR_RWP);
 }
 
-void gicv3_enable_int(unsigned int intid)
+static void gicv3_enable_int(unsigned int intid)
 {
     uint32_t mask = 1U << (intid % 32);
 
@@ -34,7 +34,7 @@ void gicv3_enable_int(unsigned int intid)
         io_writel(mask, gicv3.dist + GICD_ISENABLER + (intid / 32) * 4);
 }
 
-void gicv3_disable_int(unsigned int intid)
+static void gicv3_disable_int(unsigned int intid)
 {
     uint32_t mask = 1U << (intid % 32);
 
@@ -50,7 +50,7 @@ void gicv3_disable_int(unsigned int intid)
     }
 }
 
-void gicv3_set_int_priority(unsigned int intid, unsigned int priority)
+static void gicv3_set_int_priority(unsigned int intid, unsigned int priority)
 {
     if (intid < GIC_SPI_BASE)
         io_writeb(priority, gicv3.rdist_sgi + GICR_IPRIORITYR0 + intid);
@@ -58,7 +58,7 @@ void gicv3_set_int_priority(unsigned int intid, unsigned int priority)
         io_writeb(priority, gicv3.dist + GICD_IPRIORITYR + intid);
 }
 
-void gicv3_set_int_type(unsigned int intid, unsigned int type)
+static void gicv3_set_int_type(unsigned int intid, unsigned int type)
 {
     void *base;
     uint32_t cfg, mask;
@@ -161,13 +161,13 @@ static void gicv3_init_dist(void)
               gicv3.dist + GICD_CTLR);
 }
 
-void gicv3_eoi(unsigned int intid)
+static void gicv3_eoi(unsigned int intid)
 {
     dsb(sy);
     write_sysreg(intid, ICC_EOIR1_EL1);
 }
 
-unsigned int gicv3_get_active_irq(void)
+static unsigned int gicv3_get_active_irq(void)
 {
     return read_sysreg(ICC_IAR1_EL1);
 }
@@ -202,19 +202,7 @@ static void gicv3_mapping(void)
 #endif
 }
 
-void gicv3_init(void)
-{
-    gicv3_mapping();
-
-    printk("GICv3: GICD=%p, GICR=%p\n", gicv3.dist, gicv3.rdist);
-    gicv3_init_dist();
-
-    gicv3_enable_rdist();
-
-    gicv3_init_cpu();
-}
-
-void gicv3_handler(void)
+static void gicv3_handler(void)
 {
     unsigned int id;
 
@@ -229,6 +217,34 @@ void gicv3_handler(void)
 
     /* Write EOIR to deactivate interrupt. */
     gicv3_eoi(id);
+}
+
+static void gicv3_init(void)
+{
+    gicv3_mapping();
+
+    printk("GICv3: GICD=%p, GICR=%p\n", gicv3.dist, gicv3.rdist);
+    gicv3_init_dist();
+
+    gicv3_enable_rdist();
+
+    gicv3_init_cpu();
+}
+
+static struct gic_controller gicv3_controller = {
+    .enable_int = gicv3_enable_int,
+    .disable_int = gicv3_disable_int,
+    .set_int_priority = gicv3_set_int_priority,
+    .set_int_type = gicv3_set_int_type,
+    .eoi = gicv3_eoi,
+    .get_active_irq = gicv3_get_active_irq,
+    .handler = gicv3_handler,
+    .init = gicv3_init,
+};
+
+void gicv3_register(void)
+{
+    gic = &gicv3_controller;
 }
 
 /*
