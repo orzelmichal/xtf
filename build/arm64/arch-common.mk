@@ -21,24 +21,45 @@ COMMON_AFLAGS += -DCONFIG_ARM_64
 # Prevent the compiler from using FP/ASIMD registers
 COMMON_CFLAGS += -mgeneral-regs-only
 
-# Specify whether to use ARM GICv3 (enabled by default):
-# CONFIG_GICV3=<y/n>
-CONFIG_GICV3 ?= y
+# Specify whether to support ARM GICv2 (disabled by default):
+# CONFIG_GICV2=<y/n>
+CONFIG_GICV2 ?= n
 
-# The following two options must be populated with proper addresses when using
+# Specify whether to support ARM GICv3 (enabled by default):
+# CONFIG_GICV3=<y/n>
+ifeq ($(CONFIG_GICV2), n)
+CONFIG_GICV3 ?= y
+else
+CONFIG_GICV3 ?= n
+endif
+
+# Only one GIC support at a time is allowed
+ifeq ($(CONFIG_GICV3)$(CONFIG_GICV2), yy)
+$(error "You cannot enable both GIC drivers at the same time")
+endif
+
+# The following options must be populated with proper addresses when using
 # XTF as dom0. When using XTF as domU, these addresses do not matter as GIC
-# driver will use Xen vGIC v3 mappings.
+# driver will use Xen vGIC mappings.
 
 # Specify GIC distributor address.
 CONFIG_GICV3_DIST_ADDRESS  ?= 0x0
+CONFIG_GICV2_DIST_ADDRESS  ?= 0x0
 
 # Specify GIC redistributor address.
 CONFIG_GICV3_RDIST_ADDRESS ?= 0x0
+
+# Specify GIC CPU interface address.
+CONFIG_GICV2_CPU_ADDRESS   ?= 0x0
 
 ifeq ($(CONFIG_GICV3), y)
 COMMON_CFLAGS += -DCONFIG_GICV3
 COMMON_CFLAGS += -DCONFIG_GICV3_DIST_ADDRESS=$(CONFIG_GICV3_DIST_ADDRESS)
 COMMON_CFLAGS += -DCONFIG_GICV3_RDIST_ADDRESS=$(CONFIG_GICV3_RDIST_ADDRESS)
+else ifeq ($(CONFIG_GICV2), y)
+COMMON_CFLAGS += -DCONFIG_GICV2
+COMMON_CFLAGS += -DCONFIG_GICV2_DIST_ADDRESS=$(CONFIG_GICV2_DIST_ADDRESS)
+COMMON_CFLAGS += -DCONFIG_GICV2_CPU_ADDRESS=$(CONFIG_GICV2_CPU_ADDRESS)
 endif
 
 # Include arm common makefile

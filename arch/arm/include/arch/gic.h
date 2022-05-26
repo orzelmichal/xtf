@@ -11,6 +11,7 @@
  * We need to rely on them as there is no DTB support in XTF.
  */
 #define XEN_GUEST_GICD      0x3001000U
+#define XEN_GUEST_GICC      0x3002000U
 #define XEN_GUEST_GICR      0x3020000U
 
 /* SGI base is at 64K offset from Redistributor. */
@@ -79,6 +80,19 @@
 #define GICR_ICFGR1         (0x0C04)
 #define GICR_IGRPMODR0      (0x0D00)
 #define GICR_NSACR          (0x0E00)
+
+/* GIC CPU Interface. */
+#define GICC_CTLR           (0x0000)
+#define GICC_PMR            (0x0004)
+#define GICC_BPR            (0x0008)
+#define GICC_IAR            (0x000C)
+#define GICC_EOIR           (0x0010)
+#define GICC_RPR            (0x0014)
+#define GICC_HPPIR          (0x0018)
+#define GICC_APR            (0x00D0)
+#define GICC_NSAPR          (0x00E0)
+#define GICC_IIDR           (0x00FC)
+#define GICC_DIR            (0x1000)
 
 /* System register interface to GICv3. */
 #define ICC_IGRPEN1_EL1     S3_0_C12_C12_7
@@ -177,13 +191,20 @@ static inline void gic_init(void)
 void gicv3_register(void);
 #endif
 
+#ifdef CONFIG_GICV2
+void gicv2_register(void);
+#endif
+
 static inline void gic_register(void)
 {
 #ifdef CONFIG_GICV3
     gicv3_register();
+#else
+#ifdef CONFIG_GICV2
+    gicv2_register();
+#endif
 #endif
 };
-
 
 #endif /* XTF_ARM_GIC_H */
 

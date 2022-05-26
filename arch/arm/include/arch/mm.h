@@ -54,7 +54,9 @@
 #define FIXMAP_PV_CONSOLE       0
 #define FIXMAP_GICD             1
 #define FIXMAP_GICR             2
+/* Use the same slot for GICR/GICC as we cannot have both GICv3 and GICv2. */
 #define FIXMAP_GICS             3
+#define FIXMAP_GICC             3
 
 /* Descriptors */
 #define DESCR_BAD               0x0
