@@ -10,6 +10,7 @@
 #include <arch/io.h>
 #include <arch/mm.h>
 #include <arch/gic.h>
+#include <arch/time.h>
 
 struct gic {
     char *dist;
@@ -155,6 +156,9 @@ static void gicv2_handler(void)
 
     switch(id)
     {
+    case VTIMER_IRQ:
+        vtimer_interrupt(id);
+        break;
     default:
         printk("IRQ: Unexpected INTID %u\n", id);
     }

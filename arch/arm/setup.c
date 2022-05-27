@@ -7,6 +7,7 @@
 #include <xtf/hypercall.h>
 #include <arch/system.h>
 #include <arch/gic.h>
+#include <arch/time.h>
 
 /* Structure to store boot arguments. */
 struct init_data
@@ -108,6 +109,9 @@ void arch_setup(void)
         gic_init();
         local_irq_enable();
     }
+
+    /* Initialize timer interface. */
+    time_init();
 }
 
 /*
