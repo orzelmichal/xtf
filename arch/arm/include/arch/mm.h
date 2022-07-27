@@ -81,6 +81,10 @@
                                  DESC_MAIR_INDEX(MT_DEVICE_nGnRnE) |\
                                  DESC_AF(0x1) | DESC_SH(0x3))
 
+#define DESC_PAGE_TABLE_MEM     (DESCR_VALID | DESC_TYPE_TABLE |\
+                                 DESC_MAIR_INDEX(MT_NORMAL) |\
+                                 DESC_AF(0x1) | DESC_SH(0x3))
+
 #ifndef __ASSEMBLY__
 typedef uint64_t paddr_t;
 extern paddr_t phys_offset;

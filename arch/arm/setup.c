@@ -39,7 +39,7 @@ static void setup_pv_console(void)
 
     cons_evtchn = raw_ev;
     phys = pfn_to_phys(raw_pfn);
-    pfn = set_fixmap(FIXMAP_PV_CONSOLE, phys, DESC_PAGE_TABLE_DEV);
+    pfn = set_fixmap(FIXMAP_PV_CONSOLE, phys, DESC_PAGE_TABLE_MEM);
     cons_ring = (xencons_interface_t *)pfn;
 
     init_pv_console(cons_ring, cons_evtchn);
