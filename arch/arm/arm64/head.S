@@ -30,6 +30,12 @@ lr .req x30
 98: .asciz  s;                                      \
 .popsection
 
+/* Load a physical address of \sym to \xb */
+.macro load_paddr xb, sym
+    ldr \xb, =\sym
+    add \xb, \xb, x21
+.endm
+
 .section ".bss.page_aligned"
 .p2align PAGE_SHIFT
 
@@ -38,7 +44,16 @@ stack_start:
 stack_end:
 
 .section ".text.head", "ax", @progbits
-    b       _start                  /* branch to kernel start, magic */
+
+/*
+ * Common register usage for assembly boot code
+ *
+ * x20 - DTB physical address (boot CPU only)
+ * x21 - Offset between PA and VA ( PA - VA)
+ * x30 - lr
+ */
+GLOBAL(_start)
+    b       kernel_start            /* branch to kernel start, magic */
     .long   0                       /* Executable code */
     .quad   0x0                     /* Image load offset from start of RAM */
     .quad   _end - _start           /* Effective Image size */
@@ -52,21 +67,7 @@ stack_end:
     .byte   0x64
     .long   0                       /* reserved */
 
-
-/* Load a physical address of \sym to \xb */
-.macro load_paddr xb, sym
-    ldr \xb, =\sym
-    add \xb, \xb, x21
-.endm
-
-/*
- * Common register usage for assembly boot code
- *
- * x20 - DTB physical address (boot CPU only)
- * x21 - Offset between PA and VA ( PA - VA)
- * x30 - lr
- */
-ENTRY(_start)
+kernel_start:
     /* Disable all IRQs */
     msr     daifset, #0xf
 
@@ -152,7 +153,7 @@ mmu_enabled:
 
     PRINT("- Jump to C world-\n")
     b       xtf_main
-ENDFUNC(_start)
+ENDFUNC(kernel_start)
 
 /*
  * Setup CPU for enabling MMU.
