@@ -123,15 +123,14 @@ static unsigned int gicv2_get_active_irq(void)
 
 static void gicv2_mapping(void)
 {
-    if (isinitdomain)
+    if (use_hardware_layout())
     {
         gicv2.dist = (char *)CONFIG_GICV2_DIST_ADDRESS;
         gicv2.cpu = (char *)CONFIG_GICV2_CPU_ADDRESS;
 
         /* Make sure NULL addresses are not passed further. */
         if (!gicv2.dist || !gicv2.cpu)
-            panic("Address of GICv2 distributor/cpu interface is NULL.\n"
-                  "When using XTF as dom0, specify proper addresses.\n");
+            panic("Address of GICv2 distributor/cpu interface is NULL.\n");
     }
     else
     {

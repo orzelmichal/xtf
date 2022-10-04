@@ -3,6 +3,7 @@
  *
  * Early bringup code for arm.
  */
+#include <xtf.h>
 #include <xtf/lib.h>
 #include <xtf/hypercall.h>
 #include <arch/system.h>
@@ -18,8 +19,8 @@ struct init_data
 
 const char environment_description[] = ENVIRONMENT_DESCRIPTION;
 
-/* Are we initial domain (dom0)? */
-bool isinitdomain = false;
+/* Supported feature flags obtained by XENVER_get_features. */
+struct feature_flags xtf_features;
 
 /* GIC controller. */
 struct gic_controller *gic;
@@ -67,7 +68,7 @@ static void map_shared_info(void)
 }
 #endif
 
-static bool is_initdomain(void)
+static void get_feature_flags(void)
 {
     xen_feature_info_t fi;
     int ret;
@@ -79,9 +80,14 @@ static bool is_initdomain(void)
         panic("Failed to obtain Xen features. ret=%d\n", ret);
 
     if (fi.submap & (1 << XENFEAT_dom0))
-        return true;
+        xtf_features.isinitdomain = true;
 
-    return false;
+    if (fi.submap & (1 << XENFEAT_direct_mapped))
+        xtf_features.isdirectmap = true;
+
+    printk("Feature flags:\n");
+    printk(" isinitdomain: %s\n", xtf_features.isinitdomain ? "true" : "false");
+    printk(" isdirectmap: %s\n", xtf_features.isdirectmap ? "true" : "false");
 }
 
 static void setup_console(void)
@@ -93,13 +99,13 @@ static void setup_console(void)
 void arch_setup(void)
 {
     setup_console();
-    isinitdomain = is_initdomain();
+    get_feature_flags();
 
 #ifdef CONFIG_MMU
     setup_mm(boot_data.phys_offset);
 
     /* Use PV console when running as a guest */
-    if (!isinitdomain)
+    if (!xtf_features.isinitdomain)
         setup_pv_console();
 
     map_shared_info();

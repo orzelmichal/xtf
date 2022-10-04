@@ -39,8 +39,8 @@ $(error "You cannot enable both GIC drivers at the same time")
 endif
 
 # The following options must be populated with proper addresses when using
-# XTF as dom0. When using XTF as domU, these addresses do not matter as GIC
-# driver will use Xen vGIC mappings.
+# XTF as dom0 or dom0less direct-mapped domU. In other cases, these addresses
+# do not matter as GIC driver will use Xen vGIC mappings.
 
 # Specify GIC distributor address.
 CONFIG_GICV3_DIST_ADDRESS  ?= 0x0

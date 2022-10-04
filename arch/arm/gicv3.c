@@ -175,15 +175,14 @@ static unsigned int gicv3_get_active_irq(void)
 
 static void gicv3_mapping(void)
 {
-    if (isinitdomain)
+    if (use_hardware_layout())
     {
         gicv3.dist = (char *)CONFIG_GICV3_DIST_ADDRESS;
         gicv3.rdist = (char *)CONFIG_GICV3_RDIST_ADDRESS;
 
         /* Make sure NULL addresses are not passed further. */
         if (!gicv3.dist || !gicv3.rdist)
-            panic("Address of GICv3 distributor/redistributor is NULL.\n"
-                  "When using XTF as dom0, specify proper addresses.\n");
+            panic("Address of GICv3 distributor/redistributor is NULL.\n");
     }
     else
     {
