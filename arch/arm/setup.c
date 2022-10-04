@@ -37,6 +37,10 @@ static void setup_pv_console(void)
         hvm_get_param(HVM_PARAM_CONSOLE_PFN, &raw_pfn) != 0)
         return;
 
+    /* 0 - uninitialized value. Skip PV console setup. */
+    if (!raw_pfn)
+        return;
+
     cons_evtchn = raw_ev;
     phys = pfn_to_phys(raw_pfn);
     pfn = set_fixmap(FIXMAP_PV_CONSOLE, phys, DESC_PAGE_TABLE_MEM);
