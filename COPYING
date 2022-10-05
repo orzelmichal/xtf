@@ -1,4 +1,6 @@
-The Xen Test Framework is licenced under the BSD 2-clause license
+The Xen Test Framework is licensed under the BSD 2-clause license,
+except for arch/arm/arm*/hypercall.S that are licensed GPLv2.
+
 
 Copyright (c) 2014-2020 Citrix Systems Ltd.
 All rights reserved.
