@@ -34,12 +34,12 @@ static void setup_pv_console(void)
     evtchn_port_t cons_evtchn;
     uint64_t raw_ev = 0, raw_pfn = 0, phys, pfn;
 
-    if (hvm_get_param(HVM_PARAM_CONSOLE_EVTCHN, &raw_ev) != 0 ||
-        hvm_get_param(HVM_PARAM_CONSOLE_PFN, &raw_pfn) != 0)
+    if ( hvm_get_param(HVM_PARAM_CONSOLE_EVTCHN, &raw_ev) != 0 ||
+         hvm_get_param(HVM_PARAM_CONSOLE_PFN, &raw_pfn) != 0 )
         return;
 
     /* 0 - uninitialized value. Skip PV console setup. */
-    if (!raw_pfn)
+    if ( !raw_pfn )
         return;
 
     cons_evtchn = raw_ev;
@@ -63,7 +63,7 @@ static void map_shared_info(void)
 
     ret = hypercall_memory_op(XENMEM_add_to_physmap, &xatp);
 
-    if (ret)
+    if ( ret )
         panic("Failed to map shared_info. ret=%d\n", ret);
 }
 #endif
@@ -76,13 +76,13 @@ static void get_feature_flags(void)
     fi.submap_idx = 0;
     ret = hypercall_xen_version(XENVER_get_features, &fi);
 
-    if (ret)
+    if ( ret )
         panic("Failed to obtain Xen features. ret=%d\n", ret);
 
-    if (fi.submap & (1 << XENFEAT_dom0))
+    if ( fi.submap & (1 << XENFEAT_dom0) )
         xtf_features.isinitdomain = true;
 
-    if (fi.submap & (1 << XENFEAT_direct_mapped))
+    if ( fi.submap & (1 << XENFEAT_direct_mapped) )
         xtf_features.isdirectmap = true;
 
     printk("Feature flags:\n");
@@ -105,7 +105,7 @@ void arch_setup(void)
     setup_mm(boot_data.phys_offset);
 
     /* Use PV console when running as a guest */
-    if (!xtf_features.isinitdomain)
+    if ( !xtf_features.isinitdomain )
         setup_pv_console();
 
     map_shared_info();
@@ -114,7 +114,7 @@ void arch_setup(void)
     gic_register();
 
     /* Initialize GIC and enable interrupts. */
-    if (gic_available())
+    if ( gic_available() )
     {
         gic_init();
         local_irq_enable();

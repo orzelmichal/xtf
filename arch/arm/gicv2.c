@@ -49,7 +49,7 @@ static void gicv2_set_int_type(unsigned int intid, unsigned int type)
     uint32_t cfg, mask;
 
     /* SGI's are always edge-triggered */
-    if (intid < GIC_PPI_BASE)
+    if ( intid < GIC_PPI_BASE )
         return;
 
     base = gicv2.dist + GICD_ICFGR + (intid / 16) * 4;
@@ -57,9 +57,9 @@ static void gicv2_set_int_type(unsigned int intid, unsigned int type)
     cfg = io_readl(base);
 
     mask = 2u << (2 * (intid % 16));
-    if (type == IRQ_TYPE_LEVEL)
+    if ( type == IRQ_TYPE_LEVEL )
         cfg &= ~mask;
-    else if (type == IRQ_TYPE_EDGE)
+    else if ( type == IRQ_TYPE_EDGE )
         cfg |= mask;
 
     io_writel(cfg, base);
@@ -90,19 +90,19 @@ static void gicv2_init_dist(void)
     num_ints = 32 * ((num_ints & GICD_TYPE_LINES) + 1);
 
     /* Disable all SPIs. Configure SPIs as G1 NS. */
-    for (i = GIC_SPI_BASE; i < num_ints; i += 32)
+    for ( i = GIC_SPI_BASE; i < num_ints; i += 32 )
     {
         io_writel(GIC_32BIT_MASK, gicv2.dist + GICD_ICENABLER + (i / 32) * 4);
         io_writel(GIC_32BIT_MASK, gicv2.dist + GICD_IGROUPR + (i / 32) * 4);
     }
 
     /* Set priority on SPIs. */
-    for (i = GIC_SPI_BASE; i < num_ints; i += 4)
+    for ( i = GIC_SPI_BASE; i < num_ints; i += 4 )
         io_writel(GIC_DEF_PRIORITY_X4,
                   gicv2.dist + GICD_IPRIORITYR + (i / 4) * 4);
 
     /* Configure all SPIs as level triggered, active low. */
-    for (i = GIC_SPI_BASE; i < num_ints; i += 16)
+    for ( i = GIC_SPI_BASE; i < num_ints; i += 16 )
         io_writel(0, gicv2.dist + GICD_ICFGR + (i / 16) * 4);
 
     /* Enable distributor. */
@@ -123,13 +123,13 @@ static unsigned int gicv2_get_active_irq(void)
 
 static void gicv2_mapping(void)
 {
-    if (use_hardware_layout())
+    if ( use_hardware_layout() )
     {
         gicv2.dist = (char *)CONFIG_GICV2_DIST_ADDRESS;
         gicv2.cpu = (char *)CONFIG_GICV2_CPU_ADDRESS;
 
         /* Make sure NULL addresses are not passed further. */
-        if (!gicv2.dist || !gicv2.cpu)
+        if ( !gicv2.dist || !gicv2.cpu )
             panic("Address of GICv2 distributor/cpu interface is NULL.\n");
     }
     else

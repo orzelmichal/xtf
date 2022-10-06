@@ -87,7 +87,7 @@ void do_trap_sync(struct cpu_regs *regs)
  */
 void do_trap_irq(struct cpu_regs *regs)
 {
-    if (gic_available())
+    if ( gic_available() )
         gic_handler();
     else
         UNIMPLEMENTED();

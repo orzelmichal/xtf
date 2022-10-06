@@ -22,14 +22,14 @@ static struct gic gicv3;
 
 static void gicv3_wait_rwp(void *base)
 {
-    while (io_readl(base + GICD_CTLR) & GICD_CTLR_RWP);
+    while ( io_readl(base + GICD_CTLR) & GICD_CTLR_RWP );
 }
 
 static void gicv3_enable_int(unsigned int intid)
 {
     uint32_t mask = 1U << (intid % 32);
 
-    if (intid < GIC_SPI_BASE)
+    if ( intid < GIC_SPI_BASE )
         io_writel(mask, gicv3.rdist_sgi + GICD_ISENABLER + (intid / 32) * 4);
     else
         io_writel(mask, gicv3.dist + GICD_ISENABLER + (intid / 32) * 4);
@@ -39,7 +39,7 @@ static void gicv3_disable_int(unsigned int intid)
 {
     uint32_t mask = 1U << (intid % 32);
 
-    if (intid < GIC_SPI_BASE)
+    if ( intid < GIC_SPI_BASE )
     {
         io_writel(mask, gicv3.rdist_sgi + GICD_ICENABLER + (intid / 32) * 4);
         gicv3_wait_rwp(gicv3.rdist_sgi);
@@ -53,7 +53,7 @@ static void gicv3_disable_int(unsigned int intid)
 
 static void gicv3_set_int_priority(unsigned int intid, unsigned int priority)
 {
-    if (intid < GIC_SPI_BASE)
+    if ( intid < GIC_SPI_BASE )
         io_writeb(priority, gicv3.rdist_sgi + GICR_IPRIORITYR0 + intid);
     else
         io_writeb(priority, gicv3.dist + GICD_IPRIORITYR + intid);
@@ -65,10 +65,10 @@ static void gicv3_set_int_type(unsigned int intid, unsigned int type)
     uint32_t cfg, mask;
 
     /* SGI's are always edge-triggered. */
-    if (intid < GIC_PPI_BASE)
+    if ( intid < GIC_PPI_BASE )
         return;
 
-    if (intid >= GIC_SPI_BASE)
+    if ( intid >= GIC_SPI_BASE )
         base = gicv3.dist + GICD_ICFGR + (intid / 16) * 4;
     else
         base = gicv3.rdist_sgi + GICR_ICFGR1 + (intid / 16) * 4;
@@ -76,9 +76,9 @@ static void gicv3_set_int_type(unsigned int intid, unsigned int type)
     cfg = io_readl(base);
 
     mask = 2u << (2 * (intid % 16));
-    if (type == IRQ_TYPE_LEVEL)
+    if ( type == IRQ_TYPE_LEVEL )
         cfg &= ~mask;
-    else if (type == IRQ_TYPE_EDGE)
+    else if ( type == IRQ_TYPE_EDGE )
         cfg |= mask;
 
     io_writel(cfg, base);
@@ -97,7 +97,7 @@ static void gicv3_init_cpu(void)
     io_writel(GIC_32BIT_MASK, gicv3.rdist_sgi + GICR_IGROUPR0);
 
     /* Set priority on PPI and SGI interrupts. */
-    for (i = GIC_SGI_BASE; i < GIC_SPI_BASE; i += 4)
+    for ( i = GIC_SGI_BASE; i < GIC_SPI_BASE; i += 4 )
         io_writel(GIC_DEF_PRIORITY_X4,
                   gicv3.rdist_sgi + GICR_IPRIORITYR0 + (i / 4) * 4);
 
@@ -121,11 +121,11 @@ static void gicv3_enable_rdist(void)
     uint32_t val;
     val = io_readl(gicv3.rdist + GICR_WAKER);
 
-    if (!(val & GICR_WAKER_CA))
+    if ( !(val & GICR_WAKER_CA) )
         return;
 
     val &= ~GICR_WAKER_PS;
-    while (io_readl(gicv3.rdist + GICR_WAKER) & GICR_WAKER_CA);
+    while ( io_readl(gicv3.rdist + GICR_WAKER) & GICR_WAKER_CA );
 }
 
 static void gicv3_init_dist(void)
@@ -140,7 +140,7 @@ static void gicv3_init_dist(void)
     num_ints = 32 * ((num_ints & GICD_TYPE_LINES) + 1);
 
     /* Disable all SPIs. Configure SPIs as G1 NS. */
-    for (i = GIC_SPI_BASE; i < num_ints; i += 32)
+    for ( i = GIC_SPI_BASE; i < num_ints; i += 32 )
     {
         io_writel(GIC_32BIT_MASK, gicv3.dist + GICD_ICENABLER + (i / 32) * 4);
         io_writel(GIC_32BIT_MASK, gicv3.dist + GICD_IGROUPR + (i / 32) * 4);
@@ -149,12 +149,12 @@ static void gicv3_init_dist(void)
     gicv3_wait_rwp(gicv3.dist);
 
     /* Set priority on SPIs. */
-    for (i = GIC_SPI_BASE; i < num_ints; i += 4)
+    for ( i = GIC_SPI_BASE; i < num_ints; i += 4 )
         io_writel(GIC_DEF_PRIORITY_X4,
                   gicv3.dist + GICD_IPRIORITYR + (i / 4) * 4);
 
     /* Configure all SPIs as level triggered, active low. */
-    for (i = GIC_SPI_BASE; i < num_ints; i += 16)
+    for ( i = GIC_SPI_BASE; i < num_ints; i += 16 )
         io_writel(0, gicv3.dist + GICD_ICFGR + (i / 16) * 4);
 
     /* Enable distributor. */
@@ -175,13 +175,13 @@ static unsigned int gicv3_get_active_irq(void)
 
 static void gicv3_mapping(void)
 {
-    if (use_hardware_layout())
+    if ( use_hardware_layout() )
     {
         gicv3.dist = (char *)CONFIG_GICV3_DIST_ADDRESS;
         gicv3.rdist = (char *)CONFIG_GICV3_RDIST_ADDRESS;
 
         /* Make sure NULL addresses are not passed further. */
-        if (!gicv3.dist || !gicv3.rdist)
+        if ( !gicv3.dist || !gicv3.rdist )
             panic("Address of GICv3 distributor/redistributor is NULL.\n");
     }
     else

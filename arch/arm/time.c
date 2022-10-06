@@ -51,7 +51,7 @@ void time_init(void)
 
     printk("Timer frequency: %u[Hz]\n", timer_frequency);
 
-    if (gic_available())
+    if ( gic_available() )
     {
         /* Enable virtual timer interrupt */
         gic_set_int_priority(VTIMER_IRQ, 0);
