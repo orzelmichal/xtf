@@ -57,9 +57,9 @@ static void gicv2_set_int_type(unsigned int intid, unsigned int type)
     cfg = io_readl(base);
 
     mask = 2u << (2 * (intid % 16));
-    if (type & IRQ_TYPE_LEVEL)
+    if (type == IRQ_TYPE_LEVEL)
         cfg &= ~mask;
-    else if (type & IRQ_TYPE_EDGE)
+    else if (type == IRQ_TYPE_EDGE)
         cfg |= mask;
 
     io_writel(cfg, base);
