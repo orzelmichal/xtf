@@ -54,7 +54,7 @@ ifeq ($(filter $(ARCH),$(SUPPORTED_ARCH)),)
 $(error Architecture '$(ARCH)' not supported)
 endif
 
-export ROOT DESTDIR ARCH xtfdir xtftestdir
+export ROOT DESTDIR ARCH SUPPORTED_ARCH xtfdir xtftestdir
 
 ifeq ($(LLVM),) # GCC toolchain
 CC              := $(CROSS_COMPILE)gcc

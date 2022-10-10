@@ -9,8 +9,26 @@ ifeq ($(TEST-ENVS),)
 $(error TEST-ENVS should not be empty)
 endif
 
+# It might be that some tests are intended only for some specific architectures.
+# If the architecture we are building the test for is not listed in TEST-ARCH,
+# skip the test. If TEST-ARCH is not specified, it defaults to all the
+# supported architectures.
+TEST-ARCH ?= $(SUPPORTED_ARCH)
+ifneq ($(filter-out $(TEST-ARCH),$(ARCH)),)
+$(info Skipping test not supported by ARCH=$(ARCH))
+SKIP_TEST := 1
+endif
+
+# It might be that TEST-ENVS contains environments for different architectures.
+# In that case skip unrecognised environments and override TEST-ENVS to contain
+# only the recognized ones.
 ifneq ($(filter-out $(ALL_ENVIRONMENTS),$(TEST-ENVS)),)
-$(error Unrecognised environments '$(filter-out $(ALL_ENVIRONMENTS),$(TEST-ENVS))')
+$(info Skipping unrecognised environments '$(filter-out $(ALL_ENVIRONMENTS),$(TEST-ENVS))')
+TEST-ENVS := $(filter-out $(filter-out $(ALL_ENVIRONMENTS),$(TEST-ENVS)),$(TEST-ENVS))
+# At this point, skip test if TEST-ENVS is empty.
+ifeq ($(TEST-ENVS),)
+SKIP_TEST := 1
+endif
 endif
 
 ifeq ($(CATEGORY),)
@@ -31,6 +49,7 @@ else
 TEST-CFGS := $(foreach env,$(TEST-ENVS),test-$(env)-$(NAME).cfg)
 endif
 
+ifeq ($(SKIP_TEST),)
 .PHONY: build
 build: $(foreach env,$(TEST-ENVS),test-$(env)-$(NAME)) $(TEST-CFGS)
 build: info.json
@@ -43,6 +62,11 @@ info.json: $(ROOT)/build/mkinfo.py FORCE
 install: install-each-env info.json
 	@$(INSTALL_DIR) $(DESTDIR)$(xtftestdir)/$(NAME)
 	$(INSTALL_DATA) info.json $(DESTDIR)$(xtftestdir)/$(NAME)
+else
+.PHONY: build install
+build:
+install:
+endif
 
 # Build a test for specified environment
 define PERENV_build
