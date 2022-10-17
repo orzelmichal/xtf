@@ -140,12 +140,10 @@ static void gicv2_mapping(void)
 
     printk("GICv2: GICD @ %p, GICC @ %p\n", gicv2.dist, gicv2.cpu);
 
-#ifdef CONFIG_MMU
     gicv2.dist = (char *)set_fixmap(FIXMAP_GICD, (paddr_t)gicv2.dist,
                                     DESC_PAGE_TABLE_DEV);
     gicv2.cpu = (char *)set_fixmap(FIXMAP_GICC, (paddr_t)gicv2.cpu,
                                      DESC_PAGE_TABLE_DEV);
-#endif
 }
 
 static void gicv2_handler(void)

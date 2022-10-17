@@ -10,17 +10,19 @@
 
 paddr_t phys_offset;
 
+#ifdef CONFIG_MMU
 /*
  * Static boot page tables used before BSS is zeroed.
  * Make boot page tables part of the loaded image by putting them inside
  * ".data.page_aligned" so that they are zeroed when loading image into memory.
  */
-uint64_t __aligned(PAGE_SIZE) __section(".data.page_aligned") l1_bpgtable[512];
-uint64_t __aligned(PAGE_SIZE) __section(".data.page_aligned") l2_bpgtable[512];
-uint64_t __aligned(PAGE_SIZE) __section(".data.page_aligned") l1_idmap[512];
-uint64_t __aligned(PAGE_SIZE) __section(".data.page_aligned") fix_pgtable[512];
+lpae_t __page_aligned_data l1_bpgtable[TABLE_ENTRIES];
+lpae_t __page_aligned_data l2_bpgtable[TABLE_ENTRIES];
+lpae_t __page_aligned_data l1_idmap[TABLE_ENTRIES];
+lpae_t __page_aligned_data fix_pgtable[TABLE_ENTRIES];
+#endif
 
-void store_pgt_entry(uint64_t *addr, uint64_t val)
+void store_pgt_entry(lpae_t *addr, lpae_t val)
 {
     *addr = val;
     dsb(ishst);
@@ -28,14 +30,18 @@ void store_pgt_entry(uint64_t *addr, uint64_t val)
 }
 
 /* Map a page in a fixmap entry */
-uint64_t set_fixmap(uint8_t slot, paddr_t pa, uint64_t flags)
+void *set_fixmap(uint8_t slot, paddr_t pa, uint64_t flags)
 {
+#ifdef CONFIG_MMU
     unsigned int index;
 
     index = L3_TABLE_INDEX(FIXMAP_ADDR(slot));
     store_pgt_entry(&fix_pgtable[index], ((pa & ~(L3_TABLE_SIZE - 1)) | flags));
 
-    return (uint64_t)(FIXMAP_ADDR(slot) + (pa & PAGE_OFFSET));
+    return (void *)(FIXMAP_ADDR(slot) + (pa & PAGE_OFFSET));
+#else
+    return (void *)(vaddr_t)pa;
+#endif
 }
 
 void setup_mm(paddr_t boot_phys_offset)

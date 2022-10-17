@@ -3,9 +3,6 @@
 BASE_ARCH        := arm
 ALL_ENVIRONMENTS := mmu64le
 
-# On arm64 all environments need to have MMU enabled
-MMU_ENVIRONMENTS := $(ALL_ENVIRONMENTS)
-
 $(foreach env,$(ALL_ENVIRONMENTS),$(eval $(env)_guest := arm64))
 $(foreach env,$(ALL_ENVIRONMENTS),$(eval $(env)_arch := arm64))
 

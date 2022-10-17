@@ -87,6 +87,9 @@
 
 #ifndef __ASSEMBLY__
 typedef uint64_t paddr_t;
+typedef unsigned long vaddr_t;
+typedef unsigned long pfn_t;
+typedef uint64_t lpae_t;
 extern paddr_t phys_offset;
 
 /*
@@ -102,14 +105,14 @@ extern paddr_t phys_offset;
 #define phys(x)         ((paddr_t)(x) + phys_offset)
 #define virt(x)         (void *)((x) - phys_offset)
 #define pfn_to_phys(x)  ((paddr_t)(x) << PAGE_SHIFT)
-#define phys_to_pfn(x)  ((unsigned long)((x) >> PAGE_SHIFT))
-#define mfn_to_virt(x)  (virt(pfn_to_phys(x)))
-#define virt_to_mfn(x)  (phys_to_pfn(phys(x)))
-#define pfn_to_virt(x)  (virt(pfn_to_phys(x)))
-#define virt_to_pfn(x)  (phys_to_pfn(phys(x)))
+#define phys_to_pfn(x)  ((pfn_t)((x) >> PAGE_SHIFT))
+#define mfn_to_virt(x)  (virt(pfn_to_phys((pfn_t)x)))
+#define virt_to_mfn(x)  (phys_to_pfn(phys((vaddr_t)x)))
+#define pfn_to_virt(x)  (virt(pfn_to_phys((pfn_t)x)))
+#define virt_to_pfn(x)  (phys_to_pfn(phys((vaddr_t)x)))
 
-void store_pgt_entry(uint64_t *addr, uint64_t val);
-uint64_t set_fixmap(uint8_t slot, paddr_t pa, uint64_t flags);
+void store_pgt_entry(lpae_t *addr, lpae_t val);
+void *set_fixmap(uint8_t slot, paddr_t pa, uint64_t flags);
 void setup_mm(paddr_t boot_phys_offset);
 
 #endif /* __ASSEMBLY__ */

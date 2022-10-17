@@ -194,14 +194,12 @@ static void gicv3_mapping(void)
 
     gicv3.rdist_sgi = gicv3.rdist + GICR_SGI_BASE_OFF;
 
-#ifdef CONFIG_MMU
     gicv3.dist = (char *)set_fixmap(FIXMAP_GICD, (paddr_t)gicv3.dist,
                                     DESC_PAGE_TABLE_DEV);
     gicv3.rdist = (char *)set_fixmap(FIXMAP_GICR, (paddr_t)gicv3.rdist,
                                      DESC_PAGE_TABLE_DEV);
     gicv3.rdist_sgi = (char *)set_fixmap(FIXMAP_GICS, (paddr_t)gicv3.rdist_sgi,
                                          DESC_PAGE_TABLE_DEV);
-#endif
 }
 
 static void gicv3_handler(void)

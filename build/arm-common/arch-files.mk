@@ -10,9 +10,6 @@ obj-perbits += $(ROOT)/common/setup.o
 obj-perbits += $(ROOT)/common/xenbus.o
 obj-perbits += $(ROOT)/common/weak-defaults.o
 
+obj-perenv += $(ROOT)/arch/arm/mm.o
 obj-perenv += $(ROOT)/arch/arm/setup.o
 obj-perenv += $(ROOT)/arch/arm/traps.o
-
-# MMU environment specific objects
-obj-mmu += $(ROOT)/arch/arm/mm.o
-$(foreach env,$(MMU_ENVIRONMENTS),$(eval obj-$(env) += $(obj-mmu)))

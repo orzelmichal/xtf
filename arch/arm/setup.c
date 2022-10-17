@@ -27,12 +27,11 @@ struct gic_controller *gic;
 
 shared_info_t __page_aligned_bss shared_info;
 
-#ifdef CONFIG_MMU
 static void setup_pv_console(void)
 {
     xencons_interface_t *cons_ring;
     evtchn_port_t cons_evtchn;
-    uint64_t raw_ev = 0, raw_pfn = 0, phys, pfn;
+    uint64_t raw_ev = 0, raw_pfn = 0, phys;
 
     if ( hvm_get_param(HVM_PARAM_CONSOLE_EVTCHN, &raw_ev) != 0 ||
          hvm_get_param(HVM_PARAM_CONSOLE_PFN, &raw_pfn) != 0 )
@@ -44,8 +43,8 @@ static void setup_pv_console(void)
 
     cons_evtchn = raw_ev;
     phys = pfn_to_phys(raw_pfn);
-    pfn = set_fixmap(FIXMAP_PV_CONSOLE, phys, DESC_PAGE_TABLE_MEM);
-    cons_ring = (xencons_interface_t *)pfn;
+    cons_ring = (xencons_interface_t *)set_fixmap(FIXMAP_PV_CONSOLE, phys,
+                                                  DESC_PAGE_TABLE_MEM);
 
     init_pv_console(cons_ring, cons_evtchn);
 }
@@ -66,7 +65,6 @@ static void map_shared_info(void)
     if ( ret )
         panic("Failed to map shared_info. ret=%d\n", ret);
 }
-#endif
 
 static void get_feature_flags(void)
 {
@@ -98,18 +96,16 @@ static void setup_console(void)
 
 void arch_setup(void)
 {
+    setup_mm(boot_data.phys_offset);
+
     setup_console();
     get_feature_flags();
-
-#ifdef CONFIG_MMU
-    setup_mm(boot_data.phys_offset);
 
     /* Use PV console when running as a guest */
     if ( !xtf_features.isinitdomain )
         setup_pv_console();
 
     map_shared_info();
-#endif
 
     gic_register();
 
