@@ -59,5 +59,16 @@ COMMON_CFLAGS += -DCONFIG_GICV2_DIST_ADDRESS=$(CONFIG_GICV2_DIST_ADDRESS)
 COMMON_CFLAGS += -DCONFIG_GICV2_CPU_ADDRESS=$(CONFIG_GICV2_CPU_ADDRESS)
 endif
 
+# Specify whether to support ARM SBSA UART (disabled by default):
+CONFIG_SBSA_UART ?= n
+
+# Specify ARM SBSA UART address (when running as dom0less direct-mapped domU):
+CONFIG_SBSA_UART_ADDRESS ?= 0x0
+
+ifeq ($(CONFIG_SBSA_UART), y)
+COMMON_CFLAGS += -DCONFIG_SBSA_UART
+COMMON_CFLAGS += -DCONFIG_SBSA_UART_ADDRESS=$(CONFIG_SBSA_UART_ADDRESS)
+endif
+
 # Include arm common makefile
 include $(ROOT)/build/arm-common/arch-common.mk

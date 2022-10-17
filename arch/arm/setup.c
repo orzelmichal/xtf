@@ -9,6 +9,7 @@
 #include <arch/system.h>
 #include <arch/gic.h>
 #include <arch/time.h>
+#include <arch/sbsa_uart.h>
 
 /* Structure to store boot arguments. */
 struct init_data
@@ -90,8 +91,14 @@ static void get_feature_flags(void)
 
 static void setup_console(void)
 {
-    /* Use Xen console to print messages */
+#ifdef CONFIG_SBSA_UART
+    /* Use Xen virtual PL011 UART to print messages. */
+    sbsa_uart_init();
+    register_console_callback(sbsa_uart_console_write);
+#else
+    /* Use Xen console to print messages. */
     register_console_callback(hypercall_console_write);
+#endif
 }
 
 void arch_setup(void)

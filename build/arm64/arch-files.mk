@@ -13,3 +13,6 @@ else ifeq ($(CONFIG_GICV2), y)
 obj-perenv += $(ROOT)/arch/arm/gicv2.o
 endif
 obj-perenv += $(ROOT)/arch/arm/time.o
+ifeq ($(CONFIG_SBSA_UART), y)
+obj-perenv += $(ROOT)/arch/arm/sbsa_uart.o
+endif
