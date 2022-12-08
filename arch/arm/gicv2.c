@@ -139,6 +139,8 @@ static void gicv2_mapping(void)
         gicv2.cpu = (char *)XEN_GUEST_GICC;
     }
 
+    printk("GICv2: GICD @ %p, GICC @ %p\n", gicv2.dist, gicv2.cpu);
+
 #ifdef CONFIG_MMU
     gicv2.dist = (char *)set_fixmap(FIXMAP_GICD, (paddr_t)gicv2.dist,
                                     DESC_PAGE_TABLE_DEV);
@@ -171,7 +173,6 @@ static void gicv2_init(void)
 {
     gicv2_mapping();
 
-    printk("GICv2: GICD=%p, GICC=%p\n", gicv2.dist, gicv2.cpu);
     gicv2_init_dist();
 
     gicv2_init_cpu();

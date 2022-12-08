@@ -191,6 +191,8 @@ static void gicv3_mapping(void)
         gicv3.rdist = (char *)XEN_GUEST_GICR;
     }
 
+    printk("GICv3: GICD @ %p, GICR @ %p\n", gicv3.dist, gicv3.rdist);
+
     gicv3.rdist_sgi = gicv3.rdist + GICR_SGI_BASE_OFF;
 
 #ifdef CONFIG_MMU
@@ -227,7 +229,6 @@ static void gicv3_init(void)
 {
     gicv3_mapping();
 
-    printk("GICv3: GICD=%p, GICR=%p\n", gicv3.dist, gicv3.rdist);
     gicv3_init_dist();
 
     gicv3_enable_rdist();
