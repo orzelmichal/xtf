@@ -70,5 +70,15 @@ COMMON_CFLAGS += -DCONFIG_SBSA_UART
 COMMON_CFLAGS += -DCONFIG_SBSA_UART_ADDRESS=$(CONFIG_SBSA_UART_ADDRESS)
 endif
 
+# Specify whether to enable debug build. For now, it results in enabling
+# unconditional use of Xen console to print messages from early boot code
+# as well as from C world independently of any other console choice.
+CONFIG_DEBUG ?= n
+
+ifeq ($(CONFIG_DEBUG), y)
+COMMON_CFLAGS += -DCONFIG_DEBUG
+COMMON_AFLAGS += -DCONFIG_DEBUG
+endif
+
 # Include arm common makefile
 include $(ROOT)/build/arm-common/arch-common.mk

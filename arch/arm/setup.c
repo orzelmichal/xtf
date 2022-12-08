@@ -89,28 +89,44 @@ static void get_feature_flags(void)
     printk(" isdirectmap: %s\n", xtf_features.isdirectmap ? "true" : "false");
 }
 
+/*
+ * Available consoles:
+ * dom0:
+ *  - Xen console (always)
+ * domU:
+ *  - Xen console (only if CONFIG_DEBUG is set)
+ *  - PV console (always but will not work for dom0less domUs)
+ *  - VPL011 (only if CONFIG_SBSA_UART is set)
+*/
 static void setup_console(void)
 {
+    if ( xtf_features.isinitdomain )
+    {
+        /* Xen console is already registered if CONFIG_DEBUG is set. */
+        if ( !IS_DEFINED(CONFIG_DEBUG) )
+            register_console_callback(hypercall_console_write);
+    }
+    else
+    {
+        setup_pv_console();
 #ifdef CONFIG_SBSA_UART
-    /* Use Xen virtual PL011 UART to print messages. */
-    sbsa_uart_init();
-    register_console_callback(sbsa_uart_console_write);
-#else
-    /* Use Xen console to print messages. */
-    register_console_callback(hypercall_console_write);
+        sbsa_uart_init();
+        register_console_callback(sbsa_uart_console_write);
 #endif
+    }
 }
 
 void arch_setup(void)
 {
     setup_mm(boot_data.phys_offset);
 
-    setup_console();
+    /* Use Xen console to print early messages before calling setup_console. */
+    if ( IS_DEFINED(CONFIG_DEBUG) )
+        register_console_callback(hypercall_console_write);
+
     get_feature_flags();
 
-    /* Use PV console when running as a guest */
-    if ( !xtf_features.isinitdomain )
-        setup_pv_console();
+    setup_console();
 
     map_shared_info();
 

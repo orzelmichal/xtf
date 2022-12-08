@@ -12,6 +12,7 @@ lr .req x30
                               (HEAD_FLAG_PAGE_SIZE << 1) |   \
                               (HEAD_FLAG_PHYS_BASE << 3))
 
+#ifdef CONFIG_DEBUG
 /*
  * Print a string on the debug console
  *
@@ -29,6 +30,9 @@ lr .req x30
 .pushsection .rodata.str, "aMS", %progbits, 1;      \
 98: .asciz  s;                                      \
 .popsection
+#else
+#define PRINT(s)
+#endif
 
 /* Load a physical address of \sym to \xb */
 .macro load_paddr xb, sym
