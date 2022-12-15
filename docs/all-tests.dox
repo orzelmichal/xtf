@@ -20,6 +20,8 @@ and functionality.
 
 @subpage test-fpu-exception-emulation - FPU Exception Emulation.  Covers XSA-190.
 
+@subpage test-hyp-xen-version - Hypercall xen_version testing.
+
 @subpage test-invlpg - `invlpg` instruction behaviour.
 
 @subpage test-lbr-tsx-vmentry - Haswell and later LBR/TSX Vmentry failure test.
